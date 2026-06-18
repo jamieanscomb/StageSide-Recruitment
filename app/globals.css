@@ -1,0 +1,268 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Syne+Mono&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0A0A0A;
+  color: #D0D0D0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  color: #F5F5F5;
+}
+
+input,
+select,
+textarea {
+  background-color: #1A1A1A;
+  border: 1px solid #222222;
+  color: #F5F5F5;
+  padding: 14px 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  width: 100%;
+  outline: none;
+  transition: border-color 200ms ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #555555;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #E8FF00;
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555555' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+select option {
+  background-color: #1A1A1A;
+  color: #F5F5F5;
+}
+
+button {
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.btn-primary {
+  background-color: #E8FF00;
+  color: #0A0A0A;
+  font-weight: 700;
+  padding: 14px 28px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  font-family: 'Space Grotesk', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.btn-primary:hover {
+  background-color: #d4eb00;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 1px solid #E8FF00;
+  color: #E8FF00;
+  font-weight: 700;
+  padding: 14px 28px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: 'Space Grotesk', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(232, 255, 0, 0.08);
+}
+
+.btn-danger {
+  background-color: #FF3D3D;
+  color: #F5F5F5;
+  font-weight: 700;
+  padding: 14px 28px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  font-family: 'Space Grotesk', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.btn-danger:hover {
+  background-color: #e63535;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.label-mono {
+  font-family: 'Syne Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #E8FF00;
+}
+
+.section-eyebrow {
+  font-family: 'Syne Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #E8FF00;
+  margin-bottom: 16px;
+  display: block;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  accent-color: #E8FF00;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Home page responsive styles */
+.hero-headline { font-size: 72px; }
+.section-pad { padding: 96px 48px; }
+.cover-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px 64px;
+}
+.markets-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 2px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.col-span-2 { grid-column: span 2; }
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+
+@keyframes scrollDown {
+  0% { transform: scaleY(0); transform-origin: top; opacity: 0; }
+  30% { opacity: 1; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+}
+
+@media (max-width: 1024px) {
+  .markets-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  .cover-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .markets-admin-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 768px) {
+  .hero-headline { font-size: 42px !important; letter-spacing: -1px !important; }
+  .admin-sidebar { display: none !important; }
+  .admin-topbar { display: flex !important; }
+  .admin-main { margin-left: 0 !important; padding: 80px 20px 40px !important; }
+}
+@media (max-width: 640px) {
+  .section-pad { padding: 64px 24px !important; }
+  .cover-grid { grid-template-columns: 1fr !important; }
+  .why-grid { grid-template-columns: 1fr !important; }
+  .markets-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .markets-admin-grid { grid-template-columns: 1fr !important; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .col-span-2 { grid-column: span 1 !important; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+.markets-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.footer-link {
+  color: #555555;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+.footer-link:hover { color: #E8FF00; }
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #222 #111;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #111;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #333;
+  }
+}
