@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { prisma } from '@/lib/prisma'
+import { workerCreateData } from '@/lib/db'
 import { Resend } from 'resend'
+import { writeFile, mkdir } from 'fs/promises'
+import path from 'path'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
   try {
     const fd = await req.formData()
-    const supabase = createServerClient()
 
     const get = (key: string) => fd.get(key) as string | null
     const getArr = (key: string): string[] => {
@@ -22,36 +24,33 @@ export async function POST(req: NextRequest) {
     let cvUrl: string | null = null
     const cvFile = fd.get('cv') as File | null
     if (cvFile && cvFile.size > 0) {
-      const fileName = `${Date.now()}-${cvFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('cvs')
-        .upload(fileName, cvFile, { contentType: cvFile.type })
-      if (!uploadError && uploadData) {
-        const { data: urlData } = supabase.storage.from('cvs').getPublicUrl(uploadData.path)
-        cvUrl = urlData.publicUrl
-      }
+      const safeName = `${Date.now()}-${cvFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'cvs')
+      await mkdir(uploadDir, { recursive: true })
+      const buffer = Buffer.from(await cvFile.arrayBuffer())
+      await writeFile(path.join(uploadDir, safeName), buffer)
+      cvUrl = `/uploads/cvs/${safeName}`
     }
 
-    const { data, error } = await supabase.from('workers').insert({
-      full_name: get('full_name') || '',
-      email: get('email') || '',
-      phone: get('phone') || null,
-      city: get('city') || null,
-      country: get('country') || null,
-      markets: getArr('markets'),
-      roles: getArr('roles'),
-      experience: get('experience') || null,
-      events_worked: get('events_worked') || null,
-      availability: getArr('availability'),
-      international: internationalStr === 'Yes' || internationalStr === 'Sometimes',
-      languages: get('languages') || null,
-      right_to_work_uk: rightUk === 'Yes',
-      heard_from: get('heard_from') || null,
-      cv_url: cvUrl,
-      status: 'Applied',
-    }).select().single()
-
-    if (error) throw new Error(error.message)
+    const record = await prisma.worker.create({
+      data: workerCreateData({
+        full_name: get('full_name') || '',
+        email: get('email') || '',
+        phone: get('phone') || null,
+        city: get('city') || null,
+        country: get('country') || null,
+        markets: getArr('markets'),
+        roles: getArr('roles'),
+        experience: get('experience') || null,
+        events_worked: get('events_worked') || null,
+        availability: getArr('availability'),
+        international: internationalStr === 'Yes' || internationalStr === 'Sometimes',
+        languages: get('languages') || null,
+        right_to_work_uk: rightUk === 'Yes',
+        heard_from: get('heard_from') || null,
+        cv_url: cvUrl,
+      }),
+    })
 
     const fullName = get('full_name') || ''
     const email = get('email') || ''
@@ -87,14 +86,14 @@ export async function POST(req: NextRequest) {
               <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>Markets</strong></td><td style="padding:8px;">${getArr('markets').join(', ') || '—'}</td></tr>
               <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>Roles</strong></td><td style="padding:8px;">${getArr('roles').join(', ') || '—'}</td></tr>
               <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>Experience</strong></td><td style="padding:8px;">${get('experience') || '—'}</td></tr>
-              <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>CV</strong></td><td style="padding:8px;">${cvUrl ? `<a href="${cvUrl}">Download</a>` : 'Not provided'}</td></tr>
+              <tr><td style="padding:8px;"><strong>CV</strong></td><td style="padding:8px;">${cvUrl ? `Uploaded: ${cvUrl}` : 'Not provided'}</td></tr>
             </table>
           </div>
         `,
       }),
     ])
 
-    return NextResponse.json({ success: true, id: data.id })
+    return NextResponse.json({ success: true, id: record.id })
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Unknown error' },

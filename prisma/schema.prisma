@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Worker {
+  id                   String   @id @default(cuid())
+  created_at           DateTime @default(now())
+  full_name            String
+  email                String   @unique
+  phone                String?
+  city                 String?
+  country              String?
+  markets              String   @default("[]")
+  roles                String   @default("[]")
+  experience           String?
+  events_worked        String?
+  availability         String   @default("[]")
+  international        Boolean  @default(false)
+  languages            String?
+  right_to_work_uk     Boolean  @default(false)
+  heard_from           String?
+  cv_url               String?
+  status               String   @default("Applied")
+  tier                 String?
+  notes                String?
+  rating               Int      @default(0)
+  date_available       String?
+  emergency_contact    String?
+  bank_details_provided Boolean @default(false)
+  deel_contract_active  Boolean @default(false)
+
+  @@map("workers")
+}
+
+model ClientBrief {
+  id               String   @id @default(cuid())
+  created_at       DateTime @default(now())
+  full_name        String
+  company          String?
+  email            String
+  phone            String?
+  event_name       String?
+  event_type       String?
+  event_date       String?
+  event_end_date   String?
+  location         String?
+  country          String?
+  staff_count      String?
+  roles            String   @default("[]")
+  budget           String?
+  information      String?
+  deposit_agreed   Boolean  @default(false)
+  status           String   @default("New")
+  notes            String?
+  assigned_workers String   @default("[]")
+
+  @@map("client_briefs")
+}
+
+model Booking {
+  id                  String   @id @default(cuid())
+  created_at          DateTime @default(now())
+  brief_id            String?
+  event_name          String?
+  event_date          String?
+  event_end_date      String?
+  location            String?
+  country             String?
+  client_name         String?
+  client_company      String?
+  client_email        String?
+  workers             String   @default("[]")
+  total_invoice_value Float?
+  worker_cost         Float?
+  margin              Float?
+  deposit_amount      Float?
+  deposit_paid        Boolean  @default(false)
+  invoice_sent        Boolean  @default(false)
+  invoice_paid        Boolean  @default(false)
+  factoring_used      Boolean  @default(false)
+  status              String   @default("Confirmed")
+  notes               String?
+
+  @@map("bookings")
+}
+
+model Market {
+  id              String @id @default(cuid())
+  country         String @unique
+  status          String @default("Active")
+  upcoming_events String?
+  notes           String?
+
+  @@map("markets")
+}

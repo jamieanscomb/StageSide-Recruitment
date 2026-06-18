@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { prisma } from '@/lib/prisma'
+import { parseWorker } from '@/lib/db'
+import { Prisma } from '@prisma/client'
 
 function authCheck(req: NextRequest): boolean {
   const auth = req.headers.get('Authorization') || ''
@@ -9,7 +11,7 @@ function authCheck(req: NextRequest): boolean {
 
 export async function GET(req: NextRequest) {
   if (!authCheck(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const supabase = createServerClient()
+
   const { searchParams } = new URL(req.url)
   const page = parseInt(searchParams.get('page') || '1')
   const pageSize = 25
@@ -19,21 +21,30 @@ export async function GET(req: NextRequest) {
   const market = searchParams.get('market') || ''
   const international = searchParams.get('international') || ''
 
-  let query = supabase.from('workers').select('*', { count: 'exact' })
+  const where: Prisma.WorkerWhereInput = {}
 
   if (search) {
-    query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%,city.ilike.%${search}%`)
+    where.OR = [
+      { full_name: { contains: search } },
+      { email: { contains: search } },
+      { city: { contains: search } },
+    ]
   }
-  if (status) query = query.eq('status', status)
-  if (role) query = query.contains('roles', [role])
-  if (market) query = query.contains('markets', [market])
-  if (international === 'Yes') query = query.eq('international', true)
-  if (international === 'No') query = query.eq('international', false)
+  if (status) where.status = status
+  if (role) where.roles = { contains: role }
+  if (market) where.markets = { contains: market }
+  if (international === 'Yes') where.international = true
+  if (international === 'No') where.international = false
 
-  query = query.order('created_at', { ascending: false })
-    .range((page - 1) * pageSize, page * pageSize - 1)
+  const [rows, count] = await Promise.all([
+    prisma.worker.findMany({
+      where,
+      orderBy: { created_at: 'desc' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.worker.count({ where }),
+  ])
 
-  const { data, error, count } = await query
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ data, count })
+  return NextResponse.json({ data: rows.map(parseWorker), count })
 }

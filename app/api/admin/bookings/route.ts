@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { prisma } from '@/lib/prisma'
+import { parseBooking, serializeArrayFields } from '@/lib/db'
 
 function authCheck(req: NextRequest): boolean {
   const auth = req.headers.get('Authorization') || ''
@@ -9,25 +10,27 @@ function authCheck(req: NextRequest): boolean {
 
 export async function GET(req: NextRequest) {
   if (!authCheck(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const supabase = createServerClient()
+
   const { searchParams } = new URL(req.url)
   const page = parseInt(searchParams.get('page') || '1')
   const pageSize = 25
 
-  let query = supabase.from('bookings').select('*', { count: 'exact' })
-  query = query.order('created_at', { ascending: false })
-    .range((page - 1) * pageSize, page * pageSize - 1)
+  const [rows, count] = await Promise.all([
+    prisma.booking.findMany({
+      orderBy: { created_at: 'desc' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.booking.count(),
+  ])
 
-  const { data, error, count } = await query
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ data, count })
+  return NextResponse.json({ data: rows.map(parseBooking), count })
 }
 
 export async function POST(req: NextRequest) {
   if (!authCheck(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const supabase = createServerClient()
   const body = await req.json()
-  const { data, error } = await supabase.from('bookings').insert(body).select().single()
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ success: true, data })
+  const data = serializeArrayFields(body, ['workers'])
+  const record = await prisma.booking.create({ data: data as Parameters<typeof prisma.booking.create>[0]['data'] })
+  return NextResponse.json({ success: true, data: parseBooking(record) })
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { prisma } from '@/lib/prisma'
+import { briefCreateData } from '@/lib/db'
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -7,28 +8,26 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const supabase = createServerClient()
 
-    const { data, error } = await supabase.from('client_briefs').insert({
-      full_name: body.full_name,
-      company: body.company || null,
-      email: body.email,
-      phone: body.phone || null,
-      event_name: body.event_name || null,
-      event_type: body.event_type || null,
-      event_date: body.event_date || null,
-      event_end_date: body.event_end_date || null,
-      location: body.location || null,
-      country: body.country || null,
-      staff_count: body.staff_count || null,
-      roles: body.roles || [],
-      budget: body.budget || null,
-      information: body.information || null,
-      deposit_agreed: body.deposit_agreed || false,
-      status: 'New',
-    }).select().single()
-
-    if (error) throw new Error(error.message)
+    const record = await prisma.clientBrief.create({
+      data: briefCreateData({
+        full_name: body.full_name,
+        company: body.company || null,
+        email: body.email,
+        phone: body.phone || null,
+        event_name: body.event_name || null,
+        event_type: body.event_type || null,
+        event_date: body.event_date || null,
+        event_end_date: body.event_end_date || null,
+        location: body.location || null,
+        country: body.country || null,
+        staff_count: body.staff_count || null,
+        roles: body.roles || [],
+        budget: body.budget || null,
+        information: body.information || null,
+        deposit_agreed: body.deposit_agreed || false,
+      }),
+    })
 
     const adminEmail = process.env.ADMIN_EMAIL || 'info@stagesiderecruitment.co.uk'
 
@@ -73,7 +72,7 @@ export async function POST(req: NextRequest) {
       }),
     ])
 
-    return NextResponse.json({ success: true, id: data.id })
+    return NextResponse.json({ success: true, id: record.id })
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Unknown error' },
