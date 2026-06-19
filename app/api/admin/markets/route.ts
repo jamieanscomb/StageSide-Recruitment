@@ -40,12 +40,9 @@ export async function GET(req: NextRequest) {
 
   const enriched = markets.map(m => {
     const marketKey = MARKET_KEYS[m.country] || m.country
-    const marketWorkers = workers.filter(w => {
-      try {
-        const arr: string[] = JSON.parse(w.markets)
-        return arr.some(mk => mk === marketKey || mk === m.country)
-      } catch { return false }
-    })
+    const marketWorkers = workers.filter(w =>
+      (w.markets ?? []).some(mk => mk === marketKey || mk === m.country)
+    )
     const tierBreakdown = {
       'Tier 1': marketWorkers.filter(w => w.tier === 'Tier 1').length,
       'Tier 2': marketWorkers.filter(w => w.tier === 'Tier 2').length,

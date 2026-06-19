@@ -31,8 +31,8 @@ export async function GET(req: NextRequest) {
     ]
   }
   if (status) where.status = status
-  if (role) where.roles = { contains: role }
-  if (market) where.markets = { contains: market }
+  if (role) where.roles = { has: role }
+  if (market) where.markets = { has: market }
   if (international === 'Yes') where.international = true
   if (international === 'No') where.international = false
 

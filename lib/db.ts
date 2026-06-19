@@ -1,13 +1,5 @@
 import type { Worker, ClientBrief, Booking, Market } from './types'
 
-function parseArr(raw: string): string[] {
-  try { return JSON.parse(raw) } catch { return [] }
-}
-
-function toArr(arr: string[]): string {
-  return JSON.stringify(arr)
-}
-
 function isoStr(d: Date | null | undefined): string {
   return d ? d.toISOString() : new Date().toISOString()
 }
@@ -22,11 +14,11 @@ export function parseWorker(r: any): Worker {
     phone: r.phone ?? null,
     city: r.city ?? null,
     country: r.country ?? null,
-    markets: parseArr(r.markets),
-    roles: parseArr(r.roles),
+    markets: r.markets ?? [],
+    roles: r.roles ?? [],
     experience: r.experience ?? null,
     events_worked: r.events_worked ?? null,
-    availability: parseArr(r.availability),
+    availability: r.availability ?? [],
     international: r.international,
     languages: r.languages ?? null,
     right_to_work_uk: r.right_to_work_uk,
@@ -60,13 +52,13 @@ export function parseBrief(r: any): ClientBrief {
     location: r.location ?? null,
     country: r.country ?? null,
     staff_count: r.staff_count ?? null,
-    roles: parseArr(r.roles),
+    roles: r.roles ?? [],
     budget: r.budget ?? null,
     information: r.information ?? null,
     deposit_agreed: r.deposit_agreed,
     status: r.status,
     notes: r.notes ?? null,
-    assigned_workers: parseArr(r.assigned_workers),
+    assigned_workers: r.assigned_workers ?? [],
   }
 }
 
@@ -84,7 +76,7 @@ export function parseBooking(r: any): Booking {
     client_name: r.client_name ?? null,
     client_company: r.client_company ?? null,
     client_email: r.client_email ?? null,
-    workers: parseArr(r.workers),
+    workers: r.workers ?? [],
     total_invoice_value: r.total_invoice_value ?? null,
     worker_cost: r.worker_cost ?? null,
     margin: r.margin ?? null,
@@ -107,65 +99,4 @@ export function parseMarket(r: any): Market {
     upcoming_events: r.upcoming_events ?? null,
     notes: r.notes ?? null,
   }
-}
-
-export function workerCreateData(fields: {
-  full_name: string
-  email: string
-  phone: string | null
-  city: string | null
-  country: string | null
-  markets: string[]
-  roles: string[]
-  experience: string | null
-  events_worked: string | null
-  availability: string[]
-  international: boolean
-  languages: string | null
-  right_to_work_uk: boolean
-  heard_from: string | null
-  cv_url: string | null
-}) {
-  return {
-    ...fields,
-    markets: toArr(fields.markets),
-    roles: toArr(fields.roles),
-    availability: toArr(fields.availability),
-  }
-}
-
-export function briefCreateData(fields: {
-  full_name: string
-  company: string | null
-  email: string
-  phone: string | null
-  event_name: string | null
-  event_type: string | null
-  event_date: string | null
-  event_end_date: string | null
-  location: string | null
-  country: string | null
-  staff_count: string | null
-  roles: string[]
-  budget: string | null
-  information: string | null
-  deposit_agreed: boolean
-}) {
-  return {
-    ...fields,
-    roles: toArr(fields.roles),
-  }
-}
-
-export function serializeArrayFields(
-  body: Record<string, unknown>,
-  arrayKeys: string[]
-): Record<string, unknown> {
-  const result = { ...body }
-  for (const key of arrayKeys) {
-    if (Array.isArray(result[key])) {
-      result[key] = toArr(result[key] as string[])
-    }
-  }
-  return result
 }

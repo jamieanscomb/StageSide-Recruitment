@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { workerCreateData } from '@/lib/db'
 import { sendTelegramMessage } from '@/lib/telegram'
 import { Resend } from 'resend'
 import { writeFile, mkdir } from 'fs/promises'
@@ -34,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     const record = await prisma.worker.create({
-      data: workerCreateData({
+      data: {
         full_name: get('full_name') || '',
         email: get('email') || '',
         phone: get('phone') || null,
@@ -50,7 +49,7 @@ export async function POST(req: NextRequest) {
         right_to_work_uk: rightUk === 'Yes',
         heard_from: get('heard_from') || null,
         cv_url: cvUrl,
-      }),
+      },
     })
 
     const fullName = get('full_name') || ''

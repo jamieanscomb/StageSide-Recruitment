@@ -3,36 +3,36 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Worker {
-  id                   String   @id @default(cuid())
-  created_at           DateTime @default(now())
-  full_name            String
-  email                String   @unique
-  phone                String?
-  city                 String?
-  country              String?
-  markets              String   @default("[]")
-  roles                String   @default("[]")
-  experience           String?
-  events_worked        String?
-  availability         String   @default("[]")
-  international        Boolean  @default(false)
-  languages            String?
-  right_to_work_uk     Boolean  @default(false)
-  heard_from           String?
-  cv_url               String?
-  status               String   @default("Applied")
-  tier                 String?
-  notes                String?
-  rating               Int      @default(0)
-  date_available       String?
-  emergency_contact    String?
-  bank_details_provided Boolean @default(false)
-  deel_contract_active  Boolean @default(false)
+  id                    String   @id @default(cuid())
+  created_at            DateTime @default(now())
+  full_name             String
+  email                 String   @unique
+  phone                 String?
+  city                  String?
+  country               String?
+  markets               String[] @default([])
+  roles                 String[] @default([])
+  experience            String?
+  events_worked         String?
+  availability          String[] @default([])
+  international         Boolean  @default(false)
+  languages             String?
+  right_to_work_uk      Boolean  @default(false)
+  heard_from            String?
+  cv_url                String?
+  status                String   @default("Applied")
+  tier                  String?
+  notes                 String?
+  rating                Int      @default(0)
+  date_available        String?
+  emergency_contact     String?
+  bank_details_provided Boolean  @default(false)
+  deel_contract_active  Boolean  @default(false)
   telegram_chat_id      String?
 
   @@map("workers")
@@ -52,13 +52,13 @@ model ClientBrief {
   location         String?
   country          String?
   staff_count      String?
-  roles            String   @default("[]")
+  roles            String[] @default([])
   budget           String?
   information      String?
   deposit_agreed   Boolean  @default(false)
   status           String   @default("New")
   notes            String?
-  assigned_workers String   @default("[]")
+  assigned_workers String[] @default([])
 
   @@map("client_briefs")
 }
@@ -75,7 +75,7 @@ model Booking {
   client_name         String?
   client_company      String?
   client_email        String?
-  workers             String   @default("[]")
+  workers             String[] @default([])
   total_invoice_value Float?
   worker_cost         Float?
   margin              Float?
@@ -91,9 +91,9 @@ model Booking {
 }
 
 model Market {
-  id              String @id @default(cuid())
-  country         String @unique
-  status          String @default("Active")
+  id              String  @id @default(cuid())
+  country         String  @unique
+  status          String  @default("Active")
   upcoming_events String?
   notes           String?
 

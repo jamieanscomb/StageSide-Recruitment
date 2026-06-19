@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { parseBooking, serializeArrayFields } from '@/lib/db'
+import { parseBooking } from '@/lib/db'
 
 function authCheck(req: NextRequest): boolean {
   const auth = req.headers.get('Authorization') || ''
@@ -30,7 +30,6 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   if (!authCheck(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const body = await req.json()
-  const data = serializeArrayFields(body, ['workers'])
-  const record = await prisma.booking.create({ data: data as Parameters<typeof prisma.booking.create>[0]['data'] })
+  const record = await prisma.booking.create({ data: body })
   return NextResponse.json({ success: true, data: parseBooking(record) })
 }

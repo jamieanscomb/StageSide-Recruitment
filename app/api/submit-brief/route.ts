@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { briefCreateData } from '@/lib/db'
 import { sendTelegramMessage } from '@/lib/telegram'
 import { Resend } from 'resend'
 
@@ -11,7 +10,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
 
     const record = await prisma.clientBrief.create({
-      data: briefCreateData({
+      data: {
         full_name: body.full_name,
         company: body.company || null,
         email: body.email,
@@ -27,7 +26,7 @@ export async function POST(req: NextRequest) {
         budget: body.budget || null,
         information: body.information || null,
         deposit_agreed: body.deposit_agreed || false,
-      }),
+      },
     })
 
     const adminEmail = process.env.ADMIN_EMAIL || 'info@stagesiderecruitment.co.uk'
