@@ -20,7 +20,7 @@ export default function WorkerRow({ worker, onUpdate }: WorkerRowProps) {
   const [rating, setRating] = useState(worker.rating || 0)
   const [saving, setSaving] = useState(false)
 
-  async function patch(updates: Partial<Worker>) {
+  async function patch(updates: Partial<Worker>): Promise<boolean> {
     setSaving(true)
     try {
       const res = await fetch(`/api/admin/workers/${worker.id}`, {
@@ -31,10 +31,23 @@ export default function WorkerRow({ worker, onUpdate }: WorkerRowProps) {
       if (!res.ok) throw new Error('Update failed')
       onUpdate(worker.id, updates)
       addToast('Saved', 'success')
+      return true
     } catch {
       addToast('Failed to save', 'error')
+      return false
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function changeStatus(newStatus: WorkerStatus) {
+    const ok = await patch({ status: newStatus })
+    if (ok && ['Tier 1', 'Tier 2', 'Tier 3'].includes(newStatus) && worker.telegram_chat_id) {
+      await fetch('/api/notify-worker', {
+        method: 'POST',
+        headers: adminHeaders(),
+        body: JSON.stringify({ worker_id: worker.id, message_type: 'status_update', payload: { status: newStatus } }),
+      })
     }
   }
 
@@ -82,7 +95,7 @@ export default function WorkerRow({ worker, onUpdate }: WorkerRowProps) {
         <td style={tdStyle} onClick={e => e.stopPropagation()}>
           <select
             value={worker.status}
-            onChange={e => patch({ status: e.target.value as WorkerStatus })}
+            onChange={e => changeStatus(e.target.value as WorkerStatus)}
             className={`status-select ${workerStatusStyle(worker.status)}`}
             style={{
               padding: '4px 8px',
@@ -122,6 +135,11 @@ export default function WorkerRow({ worker, onUpdate }: WorkerRowProps) {
             {formatDate(worker.created_at)}
           </span>
         </td>
+        <td style={tdStyle}>
+          <span style={{ fontSize: '14px' }} title={worker.telegram_chat_id ? 'Bot connected' : 'Not connected'}>
+            {worker.telegram_chat_id ? '✅' : '—'}
+          </span>
+        </td>
         <td style={{ ...tdStyle, textAlign: 'right' }}>
           <span style={{ color: '#555', fontSize: '18px', lineHeight: 1 }}>{expanded ? '▲' : '▼'}</span>
         </td>
@@ -129,7 +147,7 @@ export default function WorkerRow({ worker, onUpdate }: WorkerRowProps) {
 
       {expanded && (
         <tr>
-          <td colSpan={9} style={{ backgroundColor: '#0D0D0D', padding: '0' }}>
+          <td colSpan={10} style={{ backgroundColor: '#0D0D0D', padding: '0' }}>
             <div style={{ padding: '32px', borderBottom: '1px solid #222' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '24px' }}>
                 <Field label="Phone" value={worker.phone} />

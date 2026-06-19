@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { briefCreateData } from '@/lib/db'
+import { sendTelegramMessage } from '@/lib/telegram'
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -30,6 +31,13 @@ export async function POST(req: NextRequest) {
     })
 
     const adminEmail = process.env.ADMIN_EMAIL || 'info@stagesiderecruitment.co.uk'
+
+    const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID
+    if (adminChatId) {
+      await sendTelegramMessage(adminChatId,
+        `📋 *New Brief Submitted*\n\n*Contact:* ${body.full_name}\n*Company:* ${body.company || '—'}\n*Event:* ${body.event_name || '—'}\n*Date:* ${body.event_date || '—'}\n*Location:* ${body.location || '—'}, ${body.country || '—'}\n*Staff Needed:* ${body.staff_count || '—'}\n*Roles:* ${(body.roles || []).join(', ') || '—'}\n*Budget:* ${body.budget || '—'}\n\nReview in admin dashboard.`
+      )
+    }
 
     await Promise.allSettled([
       resend.emails.send({

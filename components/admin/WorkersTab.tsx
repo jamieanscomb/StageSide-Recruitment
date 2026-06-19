@@ -116,7 +116,7 @@ export default function WorkersTab() {
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #333' }}>
-              {['Name', 'Location', 'Markets', 'Roles', 'Experience', 'Status', 'Tier', 'Applied', ''].map(h => (
+              {['Name', 'Location', 'Markets', 'Roles', 'Experience', 'Status', 'Tier', 'Applied', 'Telegram', ''].map(h => (
                 <th key={h} style={{
                   padding: '10px 16px',
                   textAlign: 'left',
@@ -133,13 +133,13 @@ export default function WorkersTab() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={9} style={{ padding: '40px', textAlign: 'center' }}>
+              <tr><td colSpan={10} style={{ padding: '40px', textAlign: 'center' }}>
                 <span className="animate-pulse-accent" style={{ color: '#E8FF00', fontFamily: "'Syne Mono', monospace", fontSize: '12px' }}>
                   LOADING...
                 </span>
               </td></tr>
             ) : workers.length === 0 ? (
-              <tr><td colSpan={9} style={{ padding: '40px', textAlign: 'center', color: '#555', fontSize: '14px' }}>
+              <tr><td colSpan={10} style={{ padding: '40px', textAlign: 'center', color: '#555', fontSize: '14px' }}>
                 No workers found
               </td></tr>
             ) : (

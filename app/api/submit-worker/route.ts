@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { workerCreateData } from '@/lib/db'
+import { sendTelegramMessage } from '@/lib/telegram'
 import { Resend } from 'resend'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
@@ -55,6 +56,13 @@ export async function POST(req: NextRequest) {
     const fullName = get('full_name') || ''
     const email = get('email') || ''
     const adminEmail = process.env.ADMIN_EMAIL || 'info@stagesiderecruitment.co.uk'
+
+    const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID
+    if (adminChatId) {
+      await sendTelegramMessage(adminChatId,
+        `👤 *New Worker Application*\n\n*Name:* ${fullName}\n*Email:* ${email}\n*Location:* ${get('city') || '—'}, ${get('country') || '—'}\n*Roles:* ${getArr('roles').join(', ') || '—'}\n*Markets:* ${getArr('markets').join(', ') || '—'}\n*Experience:* ${get('experience') || '—'}\n*International:* ${internationalStr || 'No'}\n\nReview in admin dashboard.`
+      )
+    }
 
     await Promise.allSettled([
       resend.emails.send({

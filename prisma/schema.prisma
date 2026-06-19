@@ -33,6 +33,7 @@ model Worker {
   emergency_contact    String?
   bank_details_provided Boolean @default(false)
   deel_contract_active  Boolean @default(false)
+  telegram_chat_id      String?
 
   @@map("workers")
 }

@@ -40,6 +40,7 @@ export function parseWorker(r: any): Worker {
     emergency_contact: r.emergency_contact ?? null,
     bank_details_provided: r.bank_details_provided,
     deel_contract_active: r.deel_contract_active,
+    telegram_chat_id: r.telegram_chat_id ?? null,
   }
 }
 

@@ -30,6 +30,7 @@ export interface Worker {
   emergency_contact: string | null
   bank_details_provided: boolean
   deel_contract_active: boolean
+  telegram_chat_id: string | null
 }
 
 export interface ClientBrief {
